@@ -1,56 +1,13 @@
 import fs from 'fs-extra';
 import path from 'path';
-import log4js from 'log4js' ;
 import {expect} from 'chai';
-import {HtmlReporter, ReportGenerator, ReportAggregator} from '../src/index.js';
+import {HtmlReporter, ReportGenerator, ReportAggregator} from '../index.js';
 import {RUNNER, SUITES} from './testdata.js';
-
-log4js.configure({
-    appenders: {
-        fileLog: {
-            type: 'file',
-            filename: "logs/html-reporter.log",
-            maxLogSize: 5000000,
-            level: 'debug'
-        },
-        debugLog: {
-            type: 'file',
-            filename: "logs/debug-html-reporter.log",
-            maxLogSize: 5000000,
-            level: 'debug'
-        },
-        out: {
-            type: 'stdout',
-            layout: {
-                type: "pattern",
-                pattern: "%[[%p]%] - %10.-100f{2} | %7.12l:%7.12o - %[%m%]"
-            }
-        },
-        filterOut: {
-            type: 'stdout',
-            layout: {
-                type: "pattern",
-                pattern: "%[[%p]%] - %10.-100f{2} | %7.12l:%7.12o - %[%m%]"
-            },
-            level: 'info'
-        }
-    },
-    categories: {
-        file: {appenders: ['fileLog'], level: 'info'},
-        default: {appenders: ['fileLog'], level: 'info'},
-        debug: {appenders: ['debugLog'], level: 'debug'}
-    }
-});
-
-
-
-let logger = log4js.getLogger("debug") ;
 
 let htmlReporter  = new HtmlReporter({
     outputDir: './reports/html-reports/valid',
     filename: 'report.html',
     reportTitle: 'Unit Test Report Title',
-    LOG : logger,
     browserName: "dummy"
 });
 let reportAggregator  = new ReportAggregator({
@@ -59,13 +16,10 @@ let reportAggregator  = new ReportAggregator({
         reportTitle: 'Master Report',
         browserName : "test browser",
         produceJson: true,
-        LOG : logger
     });
     reportAggregator.clean();
 
 suite('HtmlReporter', async () => {
-
-
    test('on create should verify initial properties', async () => {
         expect(htmlReporter._suiteUids.size).to.deep.equal(0);
         expect(htmlReporter._indents).to.equal(0);

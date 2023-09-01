@@ -11,7 +11,7 @@ import {SuiteStats} from "@wdio/reporter";
 import open from 'open';
 import fs from 'fs-extra';
 import path from 'path';
-import log4js from '@log4js-node/log4js-api' ;
+import logger from '@wdio/logger' ;
 import url from 'node:url';
 import JsonGenerator from "./jsonGenerator.js";
 
@@ -40,7 +40,7 @@ function  walk(dir:string, extensions: string[] , filelist: string[] = []) {
 }
 
 class ReportAggregator {
-
+    LOG = logger('ReportAggregator') ;
     constructor(opts: HtmlReporterOptions) {
         this.options  = Object.assign(new HtmlReporterOptions(), {
             outputDir: 'reports/html-reports/',
@@ -48,9 +48,6 @@ class ReportAggregator {
             reportTitle: 'Test Master Report'
         }, opts);
 
-        if (!this.options.LOG) {
-            this.options.LOG = log4js.getLogger(this.options.debug ? 'debug' : 'default');
-        }
         this.reports = [];
     }
     public options: HtmlReporterOptions;
@@ -82,26 +79,26 @@ class ReportAggregator {
         } else {
             metrics.end = end.utc().format(timeFormat);
         }
-        this.options.LOG.info(String.format("Included metrics for suite: {0} {1}" , suiteInfo.cid, suiteInfo.uid) );
+        this.LOG.info(String.format("Included metrics for suite: {0} {1}" , suiteInfo.cid, suiteInfo.uid) );
     }
 
     async createReport( ) {
-        this.options.LOG.info("Report Aggregation started");
+        this.LOG.info("Report Aggregation started");
         let metrics = new Metrics () ;
         let suites : SuiteStats[] = [];
         let specs : string[] =  [];
 
         let files = this.readJsonFiles();
         if (files.length == 0) {
-            this.options.LOG.error(String.format("No Json files found in: {0}. Make sure options.produceJson is not false",  this.options.outputDir));
+            this.LOG.error(String.format("No Json files found in: {0}. Make sure options.produceJson is not false",  this.options.outputDir));
         }
         for (let i = 0; i < files.length; i++) {
             try {
                 let filename = files[i];
                 let report = JSON.parse(fs.readFileSync(filename));
                 if (!report.info || !report.info.specs) {
-                    this.options.LOG.error("report structure in question, no info or info.specs ", JSON.stringify(report));
-                    this.options.LOG.debug("report content: ", JSON.stringify(report));
+                    this.LOG.error("report structure in question, no info or info.specs ", JSON.stringify(report));
+                    this.LOG.debug("report content: ", JSON.stringify(report));
                 }
                 report.info.specs.forEach((spec: any) => {
                     specs.push(spec);
@@ -140,7 +137,7 @@ class ReportAggregator {
         }
 
         if (!metrics.start || !metrics.end) {
-            this.options.LOG.error(String.format("Invalid Metrics computed: {0} -- {1}" , metrics.start, metrics.end));
+            this.LOG.error(String.format("Invalid Metrics computed: {0} -- {1}" , metrics.start, metrics.end));
         }
         metrics.duration = dayjs.duration(dayjs(metrics.end).utc().diff(dayjs(metrics.start).utc())).as('milliseconds');
 
@@ -167,7 +164,7 @@ class ReportAggregator {
             this.reports.push(report);
         }
 
-        this.options.LOG.info("Aggregated " + specs.length + " specs, " + suites.length + " suites, " );
+        this.LOG.info("Aggregated " + specs.length + " specs, " + suites.length + " suites, " );
         this.reportFile = path.join(process.cwd(), this.options.outputDir, this.options.filename);
 
         let reportData = new ReportData(
@@ -182,7 +179,7 @@ class ReportAggregator {
             await JsonGenerator.jsonOutput(this.options,reportData) ;
             await HtmlGenerator.htmlOutput(this.options,reportData) ;
             await this.finalize() ;
-            this.options.LOG.info("Report Aggregation completed");
+            this.LOG.info("Report Aggregation completed");
 
         } catch (ex) {
             console.error("Report Aggregation failed: " + ex);
@@ -193,11 +190,13 @@ class ReportAggregator {
         let jsFiles = cssDir ;
         let reportDir = path.join(process.cwd(), this.options.outputDir);
         await copyFiles(jsFiles, reportDir) ;
-        this.options.LOG.info('copyied css : ' + jsFiles + " to " + reportDir);
+        this.LOG.info('copyied css : ' + jsFiles + " to " + reportDir);
         if (this.options.showInBrowser) {
             await open(this.reportFile)
-            this.options.LOG.info("browser launched");
+            this.LOG.info("browser launched");
         }
+        this.LOG.info('HTML Report Generation complete');
+        console.info("HTML Report Generation complete") ;
     }
 
 }

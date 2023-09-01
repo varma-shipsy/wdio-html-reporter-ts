@@ -1,5 +1,5 @@
 import {HtmlReporterOptions, ReportData} from "./types.js";
-import log4js from "@log4js-node/log4js-api";
+import logger from '@wdio/logger' ;
 import json from 'big-json';
 import {String} from 'typescript-string-operations';
 import fs from 'fs-extra';
@@ -8,16 +8,14 @@ import path from 'node:path';
 import url from 'node:url';
 
 class JsonGenerator {
+    static LOG = logger('JsonGenerator') ;
 
     static writeJson(jsonFile:string , stringified:string , reportOptions:HtmlReporterOptions, reportData: ReportData) {
         fs.outputFileSync(jsonFile, stringified);
-        reportOptions.LOG.info("Json write completed: " + jsonFile );
+       JsonGenerator.LOG.info("Json write completed: " + jsonFile );
     }
 
     static async jsonOutput(reportOptions: HtmlReporterOptions, reportData: ReportData) {
-        if (! reportOptions.LOG) {
-            reportOptions.LOG = log4js.getLogger(reportOptions.debug ? 'debug' : 'default');
-        }
 
         try {
 
@@ -34,20 +32,20 @@ class JsonGenerator {
 
                 if (reportOptions.produceJson ) {
                     let jsonFile = reportData.reportFile.replace('.html', '.json');
-                    reportOptions.LOG.info("Json report write starting: " + jsonFile);
+                   JsonGenerator.LOG.info("Json report write starting: " + jsonFile);
                     try {
                         let stringified = await json.stringify({body: reportData});
                         JsonGenerator.writeJson(jsonFile, stringified, reportOptions, reportData);
                     } catch (error) {
-                        reportOptions.LOG.error("Json write failed: " + error);
+                       JsonGenerator.LOG.error("Json write failed: " + error);
                     }
                 } else {
-                    reportOptions.LOG.info("reportOptions.produceJson is false");
+                   JsonGenerator.LOG.info("reportOptions.produceJson is false");
                 }
             }
-            reportOptions.LOG.info("Json Generation Completed");
+           JsonGenerator.LOG.info("Json Generation Completed");
         } catch (ex) {
-            reportOptions.LOG.error("Json Generation processing ended in error: " + ex);
+           JsonGenerator.LOG.error("Json Generation processing ended in error: " + ex);
         }
     }
 }

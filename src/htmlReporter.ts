@@ -15,7 +15,7 @@ import ReportGenerator from "./reportGenerator.js";
 
 import fs from 'fs-extra';
 import path from 'path';
-import log4js from '@log4js-node/log4js-api' ;
+import logger from '@wdio/logger' ;
 
 let reportProxy = new ReportEvents();
 const timeFormat = "YYYY-MM-DDTHH:mm:ss.SSS[Z]";
@@ -32,6 +32,7 @@ export default class HtmlReporter extends WDIOReporter {
     _currentSuiteUid: string;
     _currentTestUid: string;
     _currentCid: string;
+    LOG = logger('HtmlReporter') ;
 
     private _suites: SuiteStats[] = [] ;
     private reportGenerator?: ReportGenerator  ;
@@ -50,11 +51,6 @@ export default class HtmlReporter extends WDIOReporter {
         opts.stdout = true,
 
         this.options = Object.assign(opts, options);
-        if (!this.options.LOG) {
-            this.options.LOG = log4js.getLogger(this.options.debug ? 'debug' : 'default');
-;
-        }
-
         const dir = this.options.outputDir + 'screenshots';
 
         fs.ensureDirSync(dir);
@@ -76,11 +72,11 @@ export default class HtmlReporter extends WDIOReporter {
 
         //@ts-ignore
         let inSync = this.reportGenerator.isSynchronised()   ;
-        this.options.LOG.debug("isSynchronized: " + inSync);
+        this.LOG.debug("isSynchronized: " + inSync);
         return inSync ;
     }
     onRunnerStart(runner: RunnerStats) {
-        this.options.LOG.info(String.format("onRunnerStart: {0}", runner.cid));
+        this.LOG.info(String.format("onRunnerStart: {0}", runner.cid));
         // this.options.LOG.debug(JSON.stringify(runner));
         //todo look at fix, not async safe. but one cid per report file
         this._currentCid = runner.cid;
@@ -101,13 +97,13 @@ export default class HtmlReporter extends WDIOReporter {
         }
         this._currentSuiteUid = suite.uid;
         suite.start = new Date();
-        this.options.LOG.info(String.format("onSuiteStart: {0}:{1}", suite.cid, suite.uid));
-        this.options.LOG.debug(JSON.stringify(suite));
+        this.LOG.info(String.format("onSuiteStart: {0}:{1}", suite.cid, suite.uid));
+        this.LOG.debug(JSON.stringify(suite));
     }
 
     onTestStart(theTest: TestStats) {
-        this.options.LOG.info(String.format("onTestStart: {0}:{1}", theTest.cid, theTest.uid));
-        this.options.LOG.debug(JSON.stringify(theTest));
+        this.LOG.info(String.format("onTestStart: {0}:{1}", theTest.cid, theTest.uid));
+        this.LOG.debug(JSON.stringify(theTest));
         this._currentTestUid = theTest.uid;
         //@ts-ignore
         theTest.events = [];
@@ -117,8 +113,8 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     onTestPass(theTest: TestStats) {
-        this.options.LOG.info(String.format("onTestPass: {0}:{1}", theTest.cid, theTest.uid));
-        this.options.LOG.debug(JSON.stringify(theTest));
+        this.LOG.info(String.format("onTestPass: {0}:{1}", theTest.cid, theTest.uid));
+        this.LOG.debug(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
         if (test) {
             this.moveErrorsToEvents(test);
@@ -127,14 +123,14 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     onTestSkip(test: TestStats) {
-        this.options.LOG.info(String.format("onTestSkip: {0}:{1}", test.cid, test.uid));
-        this.options.LOG.debug(JSON.stringify(test));
+        this.LOG.info(String.format("onTestSkip: {0}:{1}", test.cid, test.uid));
+        this.LOG.debug(JSON.stringify(test));
         this.metrics.skipped++;
     }
 
     onTestFail(theTest: TestStats) {
-        this.options.LOG.info(String.format("onTestFail: {0}:{1}", theTest.cid, theTest.uid));
-        this.options.LOG.debug(JSON.stringify(theTest));
+        this.LOG.info(String.format("onTestFail: {0}:{1}", theTest.cid, theTest.uid));
+        this.LOG.debug(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
         if (test) {
             this.moveErrorsToEvents(test);
@@ -143,8 +139,8 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     onTestEnd(theTest: TestStats) {
-        this.options.LOG.info(String.format("onTestEnd: {0}:{1}", theTest.cid, theTest.uid));
-        this.options.LOG.debug(JSON.stringify(theTest));
+        this.LOG.info(String.format("onTestEnd: {0}:{1}", theTest.cid, theTest.uid));
+        this.LOG.debug(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
         if (test) {
             this.moveErrorsToEvents(test);
@@ -152,19 +148,19 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     onHookStart(hook: HookStats) {
-        this.options.LOG.info(String.format("onHookStart: {0}:{1}", hook.cid, hook.uid));
+        this.LOG.info(String.format("onHookStart: {0}:{1}", hook.cid, hook.uid));
     }
 
     onHookEnd(hook: HookStats) {
-        this.options.LOG.info(String.format("onHookEnd: {0}:{1}", hook.cid, hook.uid));
+        this.LOG.info(String.format("onHookEnd: {0}:{1}", hook.cid, hook.uid));
         if (hook.error) {
             this.metrics.failed++;
         }
     }
 
     onSuiteEnd(suite: SuiteStats) {
-        this.options.LOG.info(String.format("onSuiteEnd: {0}:{1}", suite.cid, suite.uid));
-        this.options.LOG.debug(JSON.stringify(suite));
+        this.LOG.info(String.format("onSuiteEnd: {0}:{1}", suite.cid, suite.uid));
+        this.LOG.debug(JSON.stringify(suite));
         this._indents--;
         suite.end = new Date();
         this._suites.push(suite) ;
@@ -187,7 +183,7 @@ export default class HtmlReporter extends WDIOReporter {
             if (this.isScreenshotCommand(command) && command.result.value) {
                 let timestamp = dayjs().format('YYYYMMDD-HHmmss.SSS');
                 const filepath = path.join(this.options.outputDir, '/screenshots/', encodeURIComponent(this._currentCid), timestamp, this.options.filename + '.png');
-                this.options.LOG.info(String.format("onAfterCommand: {0}:{1} taking screenshot {2}", this._currentCid, this._currentTestUid, filepath));
+                this.LOG.info(String.format("onAfterCommand: {0}:{1} taking screenshot {2}", this._currentCid, this._currentTestUid, filepath));
                 fs.outputFileSync(filepath, Buffer.from(command.result.value, 'base64'));
 
                 let test = this.getTest(this._currentTestUid);
@@ -200,8 +196,8 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     async onRunnerEnd(runner: RunnerStats) {
-        this.options.LOG.info(String.format("onRunnerEnd: {0}", runner.cid));
-        // this.options.LOG.debug(JSON.stringify(runner));
+        this.LOG.info(String.format("onRunnerEnd: {0}", runner.cid));
+        // this.LOG.debug(JSON.stringify(runner));
         this.metrics.end = dayjs().utc().format();
         this.metrics.duration = runner._duration;
         let suites = this.filterChildSuites();
@@ -259,7 +255,7 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     saveScreenshot(filepath: string) {
-        this.options.LOG.info(String.format("saveScreenshot: {0}", filepath));
+        this.LOG.info(String.format("saveScreenshot: {0}", filepath));
         let test = this.getTest(this._currentTestUid);
         if (test) {
             this.moveErrorsToEvents(test);
@@ -269,7 +265,7 @@ export default class HtmlReporter extends WDIOReporter {
     }
 
     saveVideo(filepath: string) {
-        this.options.LOG.info(String.format("saveVideo: {0}", filepath));
+        this.LOG.info(String.format("saveVideo: {0}", filepath));
         let test = this.getTest(this._currentTestUid);
         if (test) {
             this.moveErrorsToEvents(test);
@@ -278,7 +274,7 @@ export default class HtmlReporter extends WDIOReporter {
         }
     }
     saveMessage(message: string) {
-        this.options.LOG.info(String.format("saveMessage: {0}", message));
+        this.LOG.info(String.format("saveMessage: {0}", message));
         const test = this.getTest(this._currentTestUid);
         if (test) {
             this.moveErrorsToEvents(test);

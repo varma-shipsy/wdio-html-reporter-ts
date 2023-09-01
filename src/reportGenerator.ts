@@ -8,13 +8,13 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 dayjs.extend(isSameOrBefore);
 import {SuiteStats} from "@wdio/reporter";
 import path from 'path';
-import log4js from '@log4js-node/log4js-api' ;
+import logger from '@wdio/logger' ;
 import JsonGenerator from "./jsonGenerator.js";
 const timeFormat ="YYYY-MM-DDTHH:mm:ss.SSS[Z]";
 
 
 class ReportGenerator {
-
+    LOG = logger('ReportGenerator') ;
     constructor(opts: HtmlReporterOptions) {
         opts = Object.assign({}, {
             outputDir: 'reports/html-reports/',
@@ -29,9 +29,6 @@ class ReportGenerator {
         }, opts);
 
         this.options = opts;
-        if (!this.options.LOG) {
-            this.options.LOG = log4js.getLogger(this.options.debug ? 'debug' : 'default');
-        }
         this.synchronised = true ;
     }
     public options: HtmlReporterOptions;
@@ -62,12 +59,12 @@ class ReportGenerator {
         } else {
             metrics.end = end.utc().format(timeFormat);
         }
-        this.options.LOG.info(String.format("Included metrics for suite: {0} {1}" , suiteInfo.cid, suiteInfo.uid) );
+        this.LOG.info(String.format("Included metrics for suite: {0} {1}" , suiteInfo.cid, suiteInfo.uid) );
     }
 
     async createReport(reportData: ReportData ) {
         this.synchronised = false ;
-        this.options.LOG.info("Report Generation started");
+        this.LOG.info("Report Generation started");
         let metrics = new Metrics () ;
 
         let suites = reportData.suites ;
@@ -89,7 +86,7 @@ class ReportGenerator {
             }
         }
         if (!metrics.start || !metrics.end) {
-            this.options.LOG.error(String.format("Invalid Metrics computed: {0} -- {1}" , metrics.start, metrics.end));
+            this.LOG.error(String.format("Invalid Metrics computed: {0} -- {1}" , metrics.start, metrics.end));
         }
         metrics.duration = dayjs.duration(dayjs(metrics.end).utc().diff(dayjs(metrics.start).utc())).as('milliseconds');
 
@@ -114,7 +111,7 @@ class ReportGenerator {
             };
         }
 
-        this.options.LOG.info("Generated " + specs.length + " specs, " + suites.length + " suites, " );
+        this.LOG.info("Generated " + specs.length + " specs, " + suites.length + " suites, " );
         this.reportFile = path.join(process.cwd(), this.options.outputDir, this.options.filename);
         reportData.reportFile = this.reportFile ;
 
@@ -125,7 +122,7 @@ class ReportGenerator {
             if (this.options.produceHtml) {
                 await HtmlGenerator.htmlOutput(this.options, reportData);
             }
-            this.options.LOG.info("Report Generation completed");
+            this.LOG.info("Report Generation completed");
             this.synchronised = true ;
 
         } catch (ex) {

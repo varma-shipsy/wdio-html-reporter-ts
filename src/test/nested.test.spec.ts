@@ -1,29 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
-import log4js from 'log4js' ;
 import {expect} from 'chai';
-import {HtmlReporter, ReportGenerator, ReportAggregator} from '../src/index.js';
+import {HtmlReporter, ReportGenerator, ReportAggregator} from '../index.js';
 
-log4js.configure({ // configure to use all types in different files.
-    appenders: {
-        fileLog: {
-            type: 'file',
-            filename: "logs/console.log"
-        },
-        'out': {
-            type: 'stdout',
-            layout: {
-                type: "colored"
-            },
-        }
-    },
-    categories: {
-        file: {appenders: ['fileLog'], level: 'debug'},
-        default: {appenders: ['out', 'fileLog'], level: 'debug'}
-    }
-});
-
-let logger = log4js.getLogger("default") ;
 let reportAggregator : ReportAggregator;
 
 let htmlReporter  = new HtmlReporter({
@@ -33,7 +12,6 @@ let htmlReporter  = new HtmlReporter({
     reportTitle: 'Unit Test Report Title',
     showInBrowser: false,
     browserName: "dummy",
-    LOG : logger,
     collapseTests: true,
     useOnAfterCommandForScreenshot: false
 });
@@ -46,31 +24,30 @@ reportAggregator = new ReportAggregator({
     browserName : "test browser",
     showInBrowser: true,
     collapseTests: false,
-    LOG : logger,
     useOnAfterCommandForScreenshot: false
 });
 reportAggregator.clean();
 
-describe('Suite 1', () => {
+suite('Suite 1', () => {
 
-    describe('Suite 2', () => {
-        it('test 1', async () => {
+    suite('Suite 2', () => {
+        test('test 1', async () => {
             console.log('test 1 block');
         });
 
-        it('test 2', async () => {
+        test('test 2', async () => {
             console.log('test 2 block');
         });
     });
 
-    describe('Suite 3', () => {
-        it('test 3', async () => {
+    suite('Suite 3', () => {
+        test('test 3', async () => {
             console.log('test 3 block');
         });
 
-        describe('Suite 4', () => {
-            describe('Suite 5', () => {
-                it('test 5', async() => {
+        suite('Suite 4', () => {
+            suite('Suite 5', () => {
+                test('test 5', async() => {
                     console.log('test 5 block');
                 });
             });

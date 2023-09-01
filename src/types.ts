@@ -10,7 +10,6 @@ export class HtmlReporterOptions implements Reporters.Options  {
     collapseTests?: boolean;
     collapseSuites?: boolean;
     useOnAfterCommandForScreenshot?: boolean | undefined;
-    LOG?: any ;
     debug ?: boolean | undefined;
     browserName:string;
     removeOutput?: boolean | undefined;
@@ -25,7 +24,6 @@ export class HtmlReporterOptions implements Reporters.Options  {
         this.collapseTests = false;
         this.collapseSuites = false;
         this.useOnAfterCommandForScreenshot = false;
-        this.LOG = null ;
         this.debug = false;
         this.browserName = "not specified" ;
         this.removeOutput = true ;

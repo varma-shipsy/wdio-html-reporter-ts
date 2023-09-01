@@ -3,16 +3,15 @@
 A reporter for webdriver.io which generates a nice HTML report.  
 The name is silly but provides integration with webdriverio
 
+### New:  cleaned up and switched logging to wdio-logging. Samples are updated.
+    You need to remove the log4Js logger initialization from your config
+
 ### New:  rewritten as an ES module for webdriverio 8 compatibility.
     You may need changes in your test app
 
 ### Bug fix:  webdriverio was shutting down in the middle of json async write.
-Note: if you are not getting your report generated in the cucumber or jasmine test runners, you can add the following to package.json scripts and generate the report this way after the test completes :
-```
-    "report": "node node_modules/wdio-html-nice-reporter/lib/makeReport.js master-report.html 'reports/html-reports/'",
-```
-If you do this you do not need to create a ReportAggregator in your wdio.config.ts
-### Bug fix:  json write wasnt awaited for correctly
+
+### Bug fix:  json write was not awaited for correctly
 
 ### Great new improvement:  no more out of memory errors due to json.stringify
 
@@ -56,10 +55,7 @@ const BaseConfig: WebdriverIO.Config = {
             showInBrowser: true,
             collapseTests: false,
             //to turn on screenshots after every test
-            useOnAfterCommandForScreenshot: false,
-
-            //to initialize the logger
-            LOG: log4j.getLogger("default")
+            useOnAfterCommandForScreenshot: false
         }
         ]
     ]
@@ -79,7 +75,7 @@ let reportAggregator : ReportAggregator;
 ```
 Add to browser config object:
 ```javascript
-    onPrepare: function (config, capabilities) {
+    onPrepare: function(config, capabilities) {
 
     reportAggregator = new ReportGenerator({
         outputDir: './reports/html-reports/',
@@ -100,15 +96,7 @@ onComplete: function (exitCode, config, capabilities, results) {
 
 
 ``` 
-### To use a logger for debugging
 
-A new feature for developers is to add a log4js logger to see detailed debug output.  See the test/reporter.spec.js for configuration options.
-If you dont want to use the logging, include in your project @log4js-node/log4js-api and you can quiet all debugging.
-via:
-
-    const log4js = require('@log4js-node/log4js-api');
-    const logger = log4js.getLogger(this.options.debug ? 'debug' : 'default');
- 
 
   
 ### To generate a pdf file from this report

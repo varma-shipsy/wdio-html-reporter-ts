@@ -6,47 +6,6 @@ const localEnv =  require('dotenv');
 localEnv.config();
 const video = require('wdio-video-reporter');
 
-
-const LOG = require('log4js');
-LOG.configure({
-    appenders: {
-        fileLog: {
-            type: 'file',
-            filename: "logs/html-reporter.log",
-            maxLogSize: 5000000,
-            level: 'debug'
-        },
-        debugLog: {
-            type: 'file',
-            filename: "logs/debug-html-reporter.log",
-            maxLogSize: 5000000,
-            level: 'debug'
-        },
-        'out': {
-            type: 'stdout',
-            layout: {
-                type: "colored"
-            }
-        },
-        'filterOut': {
-            type: 'stdout',
-            layout: {
-                type: "colored"
-            },
-            level: 'info'
-        }
-    },
-    categories: {
-        file: {appenders: ['fileLog'], level: 'info'},
-        default: {appenders: ['out', 'fileLog'], level: 'info'},
-        console: {appenders: ['out'], level: 'info'},
-        debug: {appenders: ['debugLog'], level: 'debug'}
-    }
-});
-
-//pick the category above to match the output you want.
-let logger = LOG.getLogger("default");
-
 let reportAggregator : ReportAggregator;
 
 const BaseConfig: WebdriverIO.Config = {
@@ -71,15 +30,15 @@ const BaseConfig: WebdriverIO.Config = {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        './build/test/specs/*.js'
+        './test/specs/*.ts'
     ],
     // Patterns to exclude.
     exclude: [
-        "./build/test/specs/login2.spec.js"
+        "./build/specs/login2.spec.ts"
     ],
     suites: {
         'loginTestSuite': [
-            "./build/test/specs/login.spec.js"
+            "./test/specs/login.spec.ts"
         ]
     },
     //
@@ -158,8 +117,7 @@ const BaseConfig: WebdriverIO.Config = {
             reportTitle: 'Web Test Report',
             showInBrowser: false,
             useOnAfterCommandForScreenshot: false,
-            linkScreenshots: true,
-            LOG: logger
+            linkScreenshots: true
         }]
     ],
 
@@ -183,8 +141,7 @@ const BaseConfig: WebdriverIO.Config = {
                 filename: process.env.TEST_BROWSER + '-master-report.html',
                 reportTitle: 'Micro-Magic Web Test Report',
                 browserName: process.env.TEST_BROWSER ? process.env.TEST_BROWSER : 'unspecified',
-                showInBrowser: true,
-                LOG: logger
+                showInBrowser: true
             });
 
         reportAggregator.clean();

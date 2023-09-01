@@ -3,35 +3,34 @@ import nunjucks from "nunjucks";
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration.js';
 import {SuiteStats, TestStats} from "@wdio/reporter";
-import log4js from "@log4js-node/log4js-api";
 import json from 'big-json';
 import {String} from 'typescript-string-operations';
 import fs from 'fs-extra';
 import _ from 'lodash';
 import path from 'node:path';
 import encode from './encode.js' ;
-
+import logger from '@wdio/logger' ;
+import url from 'node:url';
 
 dayjs.extend(duration);
 
-import url from 'node:url';
 
 class HtmlGenerator {
-
+    static LOG = logger('HtmlGenerator') ;
     static writeJson(jsonFile:string , stringified:string , reportOptions:HtmlReporterOptions, reportData: ReportData) {
         fs.outputFileSync(jsonFile, stringified);
-        reportOptions.LOG.info("Json write completed: " + jsonFile );
+       HtmlGenerator.LOG.info("Json write completed: " + jsonFile );
     }
 
     static async htmlOutput(reportOptions: HtmlReporterOptions, reportData: ReportData) {
-        if (! reportOptions.LOG) {
-            reportOptions.LOG = log4js.getLogger(reportOptions.debug ? 'debug' : 'default');
-        }
+
+       HtmlGenerator.LOG.info('Html Generation started')
+
 
         const specFileReferences: string[] = [];
         try {
             const rootdirname = path.dirname(url.fileURLToPath(new URL('.', import.meta.url)));
-            reportOptions.LOG.info("Html Generation started in " + rootdirname);
+            HtmlGenerator.LOG.info("Html Generation started in " + rootdirname);
             const templateDir = rootdirname + '/templates/';
             let environment = nunjucks.configure([templateDir ], { // set folders with templates
                 autoescape: true,
@@ -50,18 +49,18 @@ class HtmlGenerator {
                         }
                     }
                     if (!fs.existsSync(screenshotFile)) {
-                        reportOptions.LOG.error("renderImage: file doesnt exist: " + relPath );
+                        HtmlGenerator.LOG.error("renderImage: file doesnt exist: " + relPath );
                     }
 
                     relPath =  path.relative(reportOptions.outputDir,screenshotFile);
                     if (reportOptions.linkScreenshots) {
-                        reportOptions.LOG.info("renderImage: Screenshot Relative Path: " + relPath);
+                       HtmlGenerator.LOG.info("renderImage: Screenshot Relative Path: " + relPath);
                         return relPath ;
                     } else {
                         return encode(path.resolve(screenshotFile));
                     }
                 } catch(err) {
-                    reportOptions.LOG.error("renderImage: Error processing file: " + relPath + " " + err);
+                   HtmlGenerator.LOG.error("renderImage: Error processing file: " + relPath + " " + err);
                     return relPath;
                 }
             });
@@ -69,10 +68,10 @@ class HtmlGenerator {
 
                 let relPath =  path.relative(reportOptions.outputDir,videoCaptureFile).split(path.sep).join(path.posix.sep);
                 try {
-                    reportOptions.LOG.debug("Video Relative Path: " + relPath);
+                   HtmlGenerator.LOG.debug("Video Relative Path: " + relPath);
                     return relPath ;
                 } catch(err) {
-                    reportOptions.LOG.error("renderVideo: Error processing file: " + relPath + " " + err);
+                   HtmlGenerator.LOG.error("renderVideo: Error processing file: " + relPath + " " + err);
                     return relPath;
                 }
             });
@@ -197,12 +196,12 @@ class HtmlGenerator {
                         fs.outputFileSync(reportData.reportFile, html);
                     }
                 } catch (error) {
-                    reportOptions.LOG.error("Html Generation failed: " + error);
+                   HtmlGenerator.LOG.error("Html Generation failed: " + error);
                 }
             }
-            reportOptions.LOG.info("Html Generation Completed");
+           HtmlGenerator.LOG.info("Html Generation Completed");
         } catch (ex) {
-            reportOptions.LOG.error("Html Generation processing ended in error: " + ex);
+           HtmlGenerator.LOG.error("Html Generation processing ended in error: " + ex);
         }
     }
 }

@@ -1,30 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {expect} from 'chai';
-import {HtmlReporter, ReportGenerator, ReportAggregator} from '../src/index.js';
+import {HtmlReporter, ReportGenerator, ReportAggregator} from '../index.js';
 import {RUNNER, SUITES} from './testdata.js';
-import log4js from 'log4js' ;
 
-log4js.configure({ // configure to use all types in different files.
-    appenders: {
-        fileLog: {
-            type: 'file',
-            filename: "logs/console.log"
-        },
-        'out': {
-            type: 'stdout',
-            layout: {
-                type: "colored"
-            },
-        }
-    },
-    categories: {
-        file: {appenders: ['fileLog'], level: 'debug'},
-        default: {appenders: ['out', 'fileLog'], level: 'debug'}
-    }
-});
-
-let logger = log4js.getLogger("default") ;
 let reportAggregator : ReportAggregator;
 
 let htmlReporter  = new HtmlReporter({
@@ -34,13 +13,12 @@ let htmlReporter  = new HtmlReporter({
     reportTitle: 'Unit Test Report Title',
     showInBrowser: false,
     browserName: "dummy",
-    LOG : logger,
     collapseTests: true,
     useOnAfterCommandForScreenshot: false
 });
 
-describe('HtmlReporter', () => {
-    before(function () {
+suite('HtmlReporter', () => {
+    suiteSetup(function () {
         reportAggregator = new ReportAggregator({
             debug: false,
             outputDir: './reports/html-reports/invalid/',
@@ -49,7 +27,6 @@ describe('HtmlReporter', () => {
             browserName : "test browser",
             showInBrowser: true,
             collapseTests: false,
-            LOG : logger,
             useOnAfterCommandForScreenshot: false
         });
         reportAggregator.clean();
@@ -74,17 +51,17 @@ describe('HtmlReporter', () => {
     //         });
     //     })
     // });
-    describe('onRunnerStart', function () {
-        before(function () {
+    test('onRunnerStart', function () {
+        suiteSetup(function () {
             htmlReporter.onRunnerStart(RUNNER);
         });
         //This will fail.
-        it('set cid test', function () {
+        test('set cid test', function () {
             expect(htmlReporter._currentCid).to.equal("0-0");
         });
     });
-    describe('onRunnerEnd', function () {
-        it('should call htmlOutput method', function () {
+    test('onRunnerEnd', function () {
+        test('should call htmlOutput method', function () {
             (async () => {
                 await htmlReporter.onRunnerEnd(RUNNER);
                 let reportFile = path.join(process.cwd(), htmlReporter.options.outputDir, encodeURIComponent(htmlReporter._currentSuiteUid), encodeURIComponent(htmlReporter._currentCid), htmlReporter.options.filename);
@@ -93,7 +70,7 @@ describe('HtmlReporter', () => {
                 fs.emptyDirSync(path.join(process.cwd(), htmlReporter.options.outputDir, encodeURIComponent(htmlReporter._currentSuiteUid), encodeURIComponent(htmlReporter._currentCid)));
             })();
         });
-        it('should invoke the reportAggregator', function () {
+        test('should invoke the reportAggregator', function () {
             (async () => {
                 await reportAggregator.createReport();
                 expect(fs.existsSync(reportAggregator.reportFile)).to.equal(true);
