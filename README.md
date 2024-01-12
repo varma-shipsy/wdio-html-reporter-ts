@@ -3,6 +3,8 @@
 A reporter for webdriver.io which generates a nice HTML report.  
 The name is silly but provides integration with webdriverio
 
+### New:  no longer beta.
+
 ### New:  cleaned up and switched logging to wdio-logging. Samples are updated.
     You need to remove the log4Js logger initialization from your config
 
