@@ -12,7 +12,7 @@ const BaseConfig: WebdriverIO.Config = {
 
 
     //
-    // ====================cd ..
+    // ====================
     // Runner Configuration
     // ====================
     //
