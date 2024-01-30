@@ -8,7 +8,7 @@ import path from 'node:path';
 import url from 'node:url';
 
 class JsonGenerator {
-    static LOG = logger('JsonGenerator') ;
+    private static LOG = logger('JsonGenerator') ;
 
     static writeJson(jsonFile:string , stringified:string , reportOptions:HtmlReporterOptions, reportData: ReportData) {
         fs.outputFileSync(jsonFile, stringified);

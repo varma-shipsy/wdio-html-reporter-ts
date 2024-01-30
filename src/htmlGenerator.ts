@@ -16,7 +16,7 @@ dayjs.extend(duration);
 
 
 class HtmlGenerator {
-    static LOG = logger('HtmlGenerator') ;
+    private static LOG = logger('HtmlGenerator') ;
     static writeJson(jsonFile:string , stringified:string , reportOptions:HtmlReporterOptions, reportData: ReportData) {
         fs.outputFileSync(jsonFile, stringified);
        HtmlGenerator.LOG.info("Json write completed: " + jsonFile );
@@ -194,6 +194,14 @@ class HtmlGenerator {
                     if (fs.pathExistsSync(reportOptions.outputDir))
                     {
                         fs.outputFileSync(reportData.reportFile, html);
+
+                        const reportCss = rootdirname + '/css/report-styles.css';
+                        const destCss = reportOptions.outputDir + '/report-styles.css';
+                        fs.copyFile(reportCss, destCss);
+
+                        const cssFont = rootdirname + '/css/glyphicons-halflings-regular.woff';
+                        const fontDest = reportOptions.outputDir + '/glyphicons-halflings-regular.woff';
+                        fs.copyFile(cssFont, fontDest);
                     }
                 } catch (error) {
                    HtmlGenerator.LOG.error("Html Generation failed: " + error);

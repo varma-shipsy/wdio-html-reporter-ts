@@ -32,7 +32,7 @@ export default class HtmlReporter extends WDIOReporter {
     _currentSuiteUid: string;
     _currentTestUid: string;
     _currentCid: string;
-    LOG = logger('HtmlReporter') ;
+    private LOG = logger('HtmlReporter') ;
 
     private _suites: SuiteStats[] = [] ;
     private reportGenerator?: ReportGenerator  ;
@@ -114,11 +114,16 @@ export default class HtmlReporter extends WDIOReporter {
 
     onTestPass(theTest: TestStats) {
         this.LOG.info(String.format("onTestPass: {0}:{1}", theTest.cid, theTest.uid));
-        this.LOG.debug(JSON.stringify(theTest));
+        console.log("OKAY WHAT!?", theTest.cid)
+        console.log("OKAY yeah!?", theTest.uid)
+        this.LOG.info(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
+        this.LOG.info(JSON.stringify(theTest));
         if (test) {
+            this.LOG.info("MOVE ERRORS TO EVENTS");
             this.moveErrorsToEvents(test);
         }
+        console.log("METRICS PASSED ++")
         this.metrics.passed++;
     }
 
@@ -153,6 +158,7 @@ export default class HtmlReporter extends WDIOReporter {
 
     onHookEnd(hook: HookStats) {
         this.LOG.info(String.format("onHookEnd: {0}:{1}", hook.cid, hook.uid));
+        this.LOG.info(JSON.stringify(hook));
         if (hook.error) {
             this.metrics.failed++;
         }
@@ -234,6 +240,7 @@ export default class HtmlReporter extends WDIOReporter {
 
     //this is a hack.  we have to move all the things in test.errors before they get blown away
     moveErrorsToEvents(test: TestStats) {
+        console.log("moveErrorsToEvents triggered")
         if (test.errors) {
             //@ts-ignore
             for (let i = test.errorIndex; i < test.errors.length; i++) {

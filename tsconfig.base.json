@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es2020",
-    "module": "esnext",
-    "moduleResolution":"nodenext",
+    "module": "NodeNext",
+    "moduleResolution":"NodeNext",
     "declaration": true,
     "allowJs": true,
     "noEmit": false,
@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports" : true,
+    "skipLibCheck": true,
     "noImplicitAny": false,
     "outDir": "./lib/",
     "types": [
