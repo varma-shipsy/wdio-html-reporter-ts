@@ -114,16 +114,12 @@ export default class HtmlReporter extends WDIOReporter {
 
     onTestPass(theTest: TestStats) {
         this.LOG.info(String.format("onTestPass: {0}:{1}", theTest.cid, theTest.uid));
-        console.log("OKAY WHAT!?", theTest.cid)
-        console.log("OKAY yeah!?", theTest.uid)
         this.LOG.info(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
-        this.LOG.info(JSON.stringify(theTest));
         if (test) {
             this.LOG.info("MOVE ERRORS TO EVENTS");
             this.moveErrorsToEvents(test);
         }
-        console.log("METRICS PASSED ++")
         this.metrics.passed++;
     }
 
@@ -240,7 +236,6 @@ export default class HtmlReporter extends WDIOReporter {
 
     //this is a hack.  we have to move all the things in test.errors before they get blown away
     moveErrorsToEvents(test: TestStats) {
-        console.log("moveErrorsToEvents triggered")
         if (test.errors) {
             //@ts-ignore
             for (let i = test.errorIndex; i < test.errors.length; i++) {

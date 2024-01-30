@@ -111,19 +111,15 @@ class ReportGenerator {
             };
         }
 
-        console.log('options', this.options);
-
         this.LOG.info("Generated " + specs.length + " specs, " + suites.length + " suites, " );
         this.reportFile = path.join(process.cwd(), this.options.outputDir, this.options.filename);
         reportData.reportFile = this.reportFile ;
-        this.LOG.info('PRODUCE HTML REPORT???')
 
         try {
             reportData.reportFile = reportData.reportFile.replace('.html', String.format('-{0}.html',reportData.info.cid));
             await JsonGenerator.jsonOutput(this.options,reportData) ;
             //@ts-ignore
             if (this.options.produceHtml) {
-                this.LOG.info('PRODUCE HTML REPORT')
                 await HtmlGenerator.htmlOutput(this.options, reportData);
             }
             this.LOG.info("Report Generation completed");
