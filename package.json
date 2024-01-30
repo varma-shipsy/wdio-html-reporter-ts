@@ -16,7 +16,8 @@
     "clean:logs": "rimraf ./logs",
     "test:invalid": "mocha ./lib/test/invalid.test.spec.js",
     "test:reporter": "mocha ./lib/test/reporter.spec.js",
-    "test:nested": "mocha ./lib/test/nested.test.spec.js"
+    "test:nested": "mocha ./lib/test/nested.test.spec.js",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
