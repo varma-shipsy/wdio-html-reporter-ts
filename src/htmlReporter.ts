@@ -114,10 +114,9 @@ export default class HtmlReporter extends WDIOReporter {
 
     onTestPass(theTest: TestStats) {
         this.LOG.info(String.format("onTestPass: {0}:{1}", theTest.cid, theTest.uid));
-        this.LOG.info(JSON.stringify(theTest));
+        this.LOG.debug(JSON.stringify(theTest));
         let test = this.getTest(theTest.uid);
         if (test) {
-            this.LOG.info("MOVE ERRORS TO EVENTS");
             this.moveErrorsToEvents(test);
         }
         this.metrics.passed++;
@@ -154,7 +153,6 @@ export default class HtmlReporter extends WDIOReporter {
 
     onHookEnd(hook: HookStats) {
         this.LOG.info(String.format("onHookEnd: {0}:{1}", hook.cid, hook.uid));
-        this.LOG.info(JSON.stringify(hook));
         if (hook.error) {
             this.metrics.failed++;
         }
