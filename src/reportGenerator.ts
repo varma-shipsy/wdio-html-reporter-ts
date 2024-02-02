@@ -14,7 +14,7 @@ const timeFormat ="YYYY-MM-DDTHH:mm:ss.SSS[Z]";
 
 
 class ReportGenerator {
-    LOG = logger('ReportGenerator') ;
+    private LOG = logger('ReportGenerator') ;
     constructor(opts: HtmlReporterOptions) {
         opts = Object.assign({}, {
             outputDir: 'reports/html-reports/',

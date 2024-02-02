@@ -40,7 +40,7 @@ function  walk(dir:string, extensions: string[] , filelist: string[] = []) {
 }
 
 class ReportAggregator {
-    LOG = logger('ReportAggregator') ;
+    private LOG = logger('ReportAggregator') ;
     constructor(opts: HtmlReporterOptions) {
         this.options  = Object.assign(new HtmlReporterOptions(), {
             outputDir: 'reports/html-reports/',

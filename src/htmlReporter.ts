@@ -32,7 +32,7 @@ export default class HtmlReporter extends WDIOReporter {
     _currentSuiteUid: string;
     _currentTestUid: string;
     _currentCid: string;
-    LOG = logger('HtmlReporter') ;
+    private LOG = logger('HtmlReporter') ;
 
     private _suites: SuiteStats[] = [] ;
     private reportGenerator?: ReportGenerator  ;
