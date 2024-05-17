@@ -2,7 +2,7 @@
   "name": "wdio-html-nice-reporter",
   "version": "8.1.4",
   "description": "WebdriverIO report plugin. Create an HTML formatted report. compatible with webdriverio version 8",
-  "main": "lib/index.js",
+  "main": "lib/index.ts",
   "types": "lib/index.d.ts",
   "type": "module",
   "scripts": {
